@@ -1,0 +1,21 @@
+nginx:
+  build: nginx
+  command: /usr/sbin/nginx
+  ports:
+    - "80:80"
+  links:
+    - redis
+
+redis:
+  build: redis
+  command: /usr/bin/redis-server /etc/redis/redis.conf
+  expose:
+    - "6379"
+
+linkd:
+  build: linkd
+  command: /usr/bin/linkd
+  links:
+    - redis
+  environment:
+    DOCKER_HOST: 192.168.56.102:2375
