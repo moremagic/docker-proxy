@@ -8,19 +8,17 @@ import redis
 import urllib.request
 
 DOCKER_HOST = os.getenv('DOCKER_HOST')
-REDIS_ADDR = os.getenv('REDIS_PORT_6379_TCP_ADDR')
-REDIS_PORT = os.getenv('REDIS_PORT_6379_TCP_PORT')
 
 
 def redisDump():
   list=[]
-  conn = redis.Redis(host=REDIS_ADDR, port=REDIS_PORT)
+  conn = redis.Redis(host='127.0.0.1', port=6379)
   for key in conn.keys():
     list.append( conn.get(key) )
   return list
 
 def addData(datas):
-  conn = redis.Redis(host=REDIS_ADDR, port=REDIS_PORT)
+  conn = redis.Redis(host='127.0.0.1', port=6379)
   for key in set(list(datas.keys()) + list(conn.keys())):
     if isinstance(key, bytes):
       key = key.decode('utf-8')
