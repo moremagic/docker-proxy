@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 
 MAINTAINER moremagic<itoumagic@gmail.com>
-RUN apt-get update && apt-get upgrade -y && apt-get clean
+RUN apt-get update && apt-get upgrade -y && apt-get install -y vim curl && apt-get clean
 
 # ssh install
 RUN apt-get update && apt-get install -y openssh-server openssh-client && apt-get clean
@@ -18,27 +18,27 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 # python3 install
 RUN apt-get install -y python3 python3-pip && apt-get clean
 RUN pip3 install redis
-ADD regist.py /usr/sbin/regist.py
+ADD redis/regist.py /usr/sbin/regist.py
 RUN chmod +x  /usr/sbin/regist.py
 
-# Java install
-RUN apt-get install -q -y openjdk-7-jre-headless openjdk-7-jdk && apt-get clean
-ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
-ENV PATH $JAVA_HOME/bin:$PATH
+# nginx install
+RUN apt-get -y install nginx lua-nginx-redis && apt-get clean
+#ADD nginx/default /etc/nginx/sites-available/
 
 # redis install
 RUN apt-get update -y && apt-get dist-upgrade -fy && apt-get clean
 RUN apt-get install -fy redis-server
-ADD redis.conf /etc/redis/redis.conf
+ADD redis/redis.conf /etc/redis/redis.conf
 
 RUN printf '#!/bin/bash \n\
-/usr/sbin/regist.py > /var/log/docker-regist.log & \n\
+/usr/sbin/regist.py & \n\
 /usr/bin/redis-server & \n\
+/etc/init.d/nginx start \n\
 /usr/sbin/sshd -D \n\
 tail -f /var/null \n\
 ' >> /etc/service.sh \
     && chmod +x /etc/service.sh
 
-EXPOSE 22 80
+EXPOSE 22 80 443 6369
 CMD /etc/service.sh
 
